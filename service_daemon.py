@@ -19,6 +19,7 @@ TODO: Review argparser docs for cleaning up utility code.
 from sys import argv
 import time
 import datetime
+import argparse
 from input_validator import *
 
 FREQUENCY_VALUES = {'daily': 24, 'hourly': 1}
@@ -26,7 +27,7 @@ FREQUENCY_VALUES = {'daily': 24, 'hourly': 1}
 
 def sleep_until_hour(hour, minute):
     t = datetime.datetime.today()
-    future = datetime.datetime(t.year,t.month,t.day,hour,minute)
+    future = datetime.datetime(t.year, t.month, t.day, hour, minute)
     if t.hour >= hour:
         future += datetime.timedelta(days=1)
     time.sleep((future-t).seconds)
@@ -41,13 +42,25 @@ def main_module():
             print("Exiting program.")
             exit()
 
+def argument_parser():
+    parser = argparse.ArgumentParser(prog='service_daemon', description='Start a service instance.')
+    parser.add_argument('frequency', metavar='frequency', type=str, choices=["daily", "hourly"],
+                        help='Frequency that the %(prog)s service will cycle. [daily, or hourly]')
+    parser.add_argument('-t', metavar='--time', type=int,required=False,
+                        help='integer representing the start hour for the %(prog)s service-daemon lifecycle.')
+    args = parser.parse_args()
+    if args:
+        return vars(args)
+    # print(vars(args)["frequency"])
 
 def main():
-    module_arguments = argv
-    if input_is_valid(module_arguments, FREQUENCY_VALUES):
-        print('Input Success.')
+    valid_argument_values = argument_parser()
+    if valid_argument_values:
+        print("Success")
+        print(valid_argument_values)
     else:
-        print("Input Failed.")
+        print("False")
+
 
 if __name__ == "__main__":
     main()
